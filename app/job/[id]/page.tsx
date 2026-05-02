@@ -160,7 +160,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                         {job.rating.toFixed(1)}
                       </span>
                       <span className="flex items-center gap-1">
-                        <ShieldCheck className="size-4 text-emerald-500" />
+                        <ShieldCheck className="size-4 text-gigit-accent" />
                         Terverifikasi
                       </span>
                     </div>

@@ -306,7 +306,7 @@ function ExploreContent() {
                     </span>
                   )}
                   {(filters.priceMin !== undefined || filters.priceMax !== undefined) && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-gigit-accent-bg px-3 py-1 text-xs font-medium text-gigit-accent-dark border border-gigit-accent/20">
                       Rp {filters.priceMin?.toLocaleString("id-ID") ?? "0"} – {filters.priceMax?.toLocaleString("id-ID") ?? "∞"}
                       <button
                         type="button"

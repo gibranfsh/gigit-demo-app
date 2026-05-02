@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, usePathname } from "next/navigation";
 import { Search, Bell, Menu, X, ChevronDown, User, LogOut, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchBar } from "@/components/SearchBar";
@@ -47,8 +47,21 @@ const navLinks = [
 
 export function Navbar({ variant = "homepage", searchQuery = "" }: NavbarProps) {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const theme = searchParams.get("theme");
   const themeParam = theme ? `?theme=${theme}` : "";
+
+  // Helper to build URL that toggles theme without losing current path
+  const createThemeUrl = (newTheme: string | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (newTheme) {
+      params.set("theme", newTheme);
+    } else {
+      params.delete("theme");
+    }
+    const queryStr = params.toString();
+    return `${pathname}${queryStr ? `?${queryStr}` : ""}`;
+  };
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -126,7 +139,7 @@ export function Navbar({ variant = "homepage", searchQuery = "" }: NavbarProps) 
           {/* Theme switcher — subtle, always visible on desktop */}
           <div className="hidden lg:flex items-center gap-1 mr-1">
             <Link
-              href={`/${themeParam === "?theme=b" ? "" : ""}`}
+              href={createThemeUrl(null)}
               className={cn(
                 "rounded-md px-2 py-1 text-xs font-medium transition-colors duration-200",
                 !theme
@@ -137,7 +150,7 @@ export function Navbar({ variant = "homepage", searchQuery = "" }: NavbarProps) 
               A
             </Link>
             <Link
-              href="/?theme=b"
+              href={createThemeUrl("b")}
               className={cn(
                 "rounded-md px-2 py-1 text-xs font-medium transition-colors duration-200",
                 theme === "b"
@@ -266,7 +279,7 @@ export function Navbar({ variant = "homepage", searchQuery = "" }: NavbarProps) 
             <div className="flex items-center gap-2 pt-3 border-t border-white/10 mt-3">
               <span className="text-xs text-gigit-navy-muted">Theme:</span>
               <Link
-                href="/"
+                href={createThemeUrl(null)}
                 className={cn(
                   "rounded-md px-2 py-1 text-xs font-medium transition-colors duration-200",
                   !theme ? "bg-white/10 text-white" : "text-gigit-navy-muted hover:text-white"
@@ -276,7 +289,7 @@ export function Navbar({ variant = "homepage", searchQuery = "" }: NavbarProps) 
                 Version A
               </Link>
               <Link
-                href="/?theme=b"
+                href={createThemeUrl("b")}
                 className={cn(
                   "rounded-md px-2 py-1 text-xs font-medium transition-colors duration-200",
                   theme === "b" ? "bg-white/10 text-white" : "text-gigit-navy-muted hover:text-white"
