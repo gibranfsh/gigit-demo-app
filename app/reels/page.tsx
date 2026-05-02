@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { X, Heart, MessageCircle, Share2, MoreHorizontal, ExternalLink, Play, Pause, ChevronLeft, ChevronRight } from "lucide-react";
@@ -18,7 +18,7 @@ const reelsData = [
     likes: 1245,
     comments: 89,
     shares: 42,
-    relatedJobId: "job-1", 
+    relatedJobId: "job-4", // Photographer Prewedding
   },
   {
     id: "r2",
@@ -46,7 +46,7 @@ const reelsData = [
     likes: 562,
     comments: 34,
     shares: 11,
-    relatedFreelancerId: "freelancer-2",
+    relatedFreelancerId: "fl-7", // UI/UX Designer
   },
   {
     id: "r4",
@@ -58,12 +58,23 @@ const reelsData = [
     likes: 892,
     comments: 45,
     shares: 112,
-    relatedJobId: "job-2",
+    relatedJobId: "job-1", // Coach Padel Privat
   }
 ];
 
 export default function ReelsPage() {
+  return (
+    <Suspense fallback={<div className="bg-black min-h-screen w-full" />}>
+      <ReelsContent />
+    </Suspense>
+  );
+}
+
+function ReelsContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const theme = searchParams.get("theme");
+  const themeParam = theme ? `?theme=${theme}` : "";
   
   return (
     <div className="bg-black min-h-screen w-full overflow-hidden relative flex justify-center">
@@ -75,10 +86,9 @@ export default function ReelsPage() {
         <X className="size-6" />
       </button>
 
-      {/* Reel Container: Mobile full width, Desktop centered max-w-md */}
       <div className="w-full max-w-md h-[100dvh] bg-zinc-900 relative shadow-2xl overflow-y-scroll snap-y snap-mandatory scrollbar-hide">
         {reelsData.map((reel, index) => (
-          <ReelItem key={reel.id} reel={reel} isActive={true} />
+          <ReelItem key={reel.id} reel={reel} isActive={true} themeParam={themeParam} />
         ))}
       </div>
       
@@ -91,12 +101,33 @@ export default function ReelsPage() {
 }
 
 // Sub-component for individual Reel
-function ReelItem({ reel, isActive }: { reel: any, isActive: boolean }) {
+function ReelItem({ reel, isActive, themeParam }: { reel: any, isActive: boolean, themeParam: string }) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
   
   const [isLiked, setIsLiked] = useState(false);
+
+  // Auto-swipe for carousel when active
+  useEffect(() => {
+    if (!isActive || reel.type !== 'carousel' || !reel.src) return;
+    
+    const interval = setInterval(() => {
+      setCurrentSlide(curr => {
+        const next = (curr + 1) % reel.src.length;
+        if (carouselRef.current) {
+          carouselRef.current.scrollTo({
+            left: next * carouselRef.current.clientWidth,
+            behavior: 'smooth'
+          });
+        }
+        return next;
+      });
+    }, 4000); // Auto swipe every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [isActive, reel.type, reel.src]);
 
   // Intersection Observer to play/pause video when in view
   useEffect(() => {
@@ -138,12 +169,24 @@ function ReelItem({ reel, isActive }: { reel: any, isActive: boolean }) {
 
   const nextSlide = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (currentSlide < reel.src.length - 1) setCurrentSlide(curr => curr + 1);
+    if (currentSlide < reel.src.length - 1) {
+      const next = currentSlide + 1;
+      carouselRef.current?.scrollTo({ left: next * carouselRef.current.clientWidth, behavior: 'smooth' });
+    }
   };
 
   const prevSlide = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (currentSlide > 0) setCurrentSlide(curr => curr - 1);
+    if (currentSlide > 0) {
+      const prev = currentSlide - 1;
+      carouselRef.current?.scrollTo({ left: prev * carouselRef.current.clientWidth, behavior: 'smooth' });
+    }
+  };
+
+  const handleCarouselScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const slide = Math.round(target.scrollLeft / target.clientWidth);
+    if (slide !== currentSlide) setCurrentSlide(slide);
   };
 
   return (
@@ -168,24 +211,30 @@ function ReelItem({ reel, isActive }: { reel: any, isActive: boolean }) {
 
         {reel.type === 'carousel' && (
           <div className="w-full h-full relative">
-            <img src={reel.src[currentSlide]} alt={reel.title} className="w-full h-full object-cover transition-all duration-300" />
+            <div 
+              ref={carouselRef}
+              className="flex w-full h-full overflow-x-scroll snap-x snap-mandatory scrollbar-hide"
+              onScroll={handleCarouselScroll}
+            >
+              {reel.src.map((src: string, idx: number) => (
+                <div key={idx} className="w-full h-full shrink-0 snap-center">
+                  <img src={src} alt={`${reel.title} - ${idx + 1}`} className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+
             {/* Carousel Controls */}
             {currentSlide > 0 && (
-              <button onClick={prevSlide} className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 text-white p-2 rounded-full backdrop-blur-sm">
+              <button onClick={prevSlide} className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 text-white p-2 rounded-full backdrop-blur-sm transition-all hover:bg-black/60 active:scale-95">
                 <ChevronLeft className="size-5" />
               </button>
             )}
             {currentSlide < reel.src.length - 1 && (
-              <button onClick={nextSlide} className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 text-white p-2 rounded-full backdrop-blur-sm">
+              <button onClick={nextSlide} className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 text-white p-2 rounded-full backdrop-blur-sm transition-all hover:bg-black/60 active:scale-95">
                 <ChevronRight className="size-5" />
               </button>
             )}
-            {/* Carousel Dots */}
-            <div className="absolute top-4 left-0 right-0 flex justify-center gap-1.5 z-10">
-              {reel.src.map((_: any, idx: number) => (
-                <div key={idx} className={`h-1 rounded-full transition-all ${idx === currentSlide ? 'bg-white w-4' : 'bg-white/40 w-1'}`} />
-              ))}
-            </div>
+            
           </div>
         )}
       </div>
@@ -205,8 +254,18 @@ function ReelItem({ reel, isActive }: { reel: any, isActive: boolean }) {
       {/* CONTENT LAYER */}
       <div className="absolute bottom-0 left-0 right-0 p-4 flex items-end justify-between z-20">
         
+        {/* Carousel Dots (Centered Bottom Placement) */}
+        {reel.type === 'carousel' && reel.src && (
+          <div className="absolute bottom-36 left-1/2 -translate-x-1/2 flex gap-1.5 drop-shadow-md pointer-events-none z-30">
+            {reel.src.map((_: any, idx: number) => (
+              <div key={idx} className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentSlide ? 'bg-white w-5 shadow-sm' : 'bg-white/40 w-1.5'}`} />
+            ))}
+          </div>
+        )}
+
         {/* Left Side: Info */}
         <div className="flex-1 pr-12 pb-2">
+
           {/* Author */}
           <div className="flex items-center gap-2 mb-3">
             <div className="size-10 rounded-full border border-white/20 overflow-hidden shrink-0">
@@ -247,7 +306,7 @@ function ReelItem({ reel, isActive }: { reel: any, isActive: boolean }) {
 
           {/* View Details Call to Action */}
           <Link 
-            href={reel.relatedJobId ? `/job/${reel.relatedJobId}` : `/freelancer/${reel.relatedFreelancerId}`}
+            href={(reel.relatedJobId ? `/job/${reel.relatedJobId}` : `/freelancer/${reel.relatedFreelancerId}`) + themeParam}
             className="flex flex-col items-center gap-1 mt-2 group cursor-pointer"
           >
             <div className="p-3 rounded-full bg-gigit-accent text-white shadow-lg shadow-gigit-accent/30 animate-pulse-slow">
