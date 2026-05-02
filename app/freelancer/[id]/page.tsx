@@ -18,6 +18,7 @@ import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { JobCard } from "@/components/JobCard";
+import { FloatingReelsTrigger } from "@/components/FloatingReelsTrigger";
 
 interface FreelancerProfilePageProps {
   params: Promise<{ id: string }>;
@@ -191,6 +192,7 @@ export default async function FreelancerProfilePage({ params }: FreelancerProfil
       </main>
 
       <Footer />
+      <FloatingReelsTrigger />
     </div>
   );
 }

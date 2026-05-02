@@ -19,6 +19,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { FloatingReelsTrigger } from "@/components/FloatingReelsTrigger";
 
 interface JobDetailPageProps {
   params: Promise<{ id: string }>;
@@ -216,6 +217,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
       </main>
 
       <Footer />
+      <FloatingReelsTrigger />
     </div>
   );
 }
