@@ -124,7 +124,7 @@ export function SearchBar({
           <Input
             ref={inputRef}
             className={cn(
-              "h-14 rounded-2xl border-0 bg-transparent pl-13 pr-28 text-base font-medium text-foreground placeholder:text-gigit-text-secondary/60",
+              "h-14 rounded-2xl border-0 bg-transparent pl-13 pr-14 sm:pr-28 text-base font-medium text-foreground placeholder:text-gigit-text-secondary/60",
               "focus-visible:ring-0 focus-visible:border-transparent",
               "md:h-16 md:text-lg",
               inputClassName

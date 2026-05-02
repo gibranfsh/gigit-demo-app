@@ -110,7 +110,7 @@ export function Navbar({ variant = "homepage", searchQuery = "" }: NavbarProps) 
 
         {/* ── Center: Compact search (explore variant only) ── */}
         {variant === "explore" && (
-          <div className="flex-1 max-w-xl hidden sm:block">
+          <div className="flex-1 max-w-xl mx-2 sm:mx-0">
             <SearchBar
               enableAutocomplete={true}
               showSuggestions={false}
@@ -223,7 +223,7 @@ export function Navbar({ variant = "homepage", searchQuery = "" }: NavbarProps) 
               </Link>
               <Link
                 href={`/login${themeParam}`}
-                className="rounded-xl bg-gigit-blue px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-gigit-accent cursor-pointer"
+                className="hidden sm:flex items-center rounded-xl bg-gigit-blue px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-gigit-accent cursor-pointer"
               >
                 Daftar Jadi Mitra
               </Link>
@@ -261,18 +261,6 @@ export function Navbar({ variant = "homepage", searchQuery = "" }: NavbarProps) 
               </Link>
             ))}
 
-            {/* Mobile search (explore variant) */}
-            {variant === "explore" && (
-              <div className="pt-2">
-                <SearchBar
-                  enableAutocomplete={true}
-                  showSuggestions={false}
-                  defaultQuery={searchQuery}
-                  placeholder="Cari layanan..."
-                  className="[&_input]:h-10 [&_input]:md:h-10 [&_input]:text-sm [&_button]:py-1.5 [&_button]:px-3"
-                />
-              </div>
-            )}
 
             {/* Theme switcher mobile */}
             <div className="flex items-center gap-2 pt-3 border-t border-white/10 mt-3">
